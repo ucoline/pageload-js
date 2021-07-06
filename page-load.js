@@ -329,11 +329,15 @@ var pageLoadInit = function (page_load_config) {
 
             if ($html[0].attributes.length > 0) {
                 $.each($html[0].attributes, function (i, value) {
-                    if (this.specified) {
+                    if (this.specified && this.name != undefined) {
                         var name = this.name;
                         var value = this.value;
 
-                        $('html').attr(name, value);
+                        if (value != undefined) {
+                            $('html').attr(name, value);
+                        } else {
+                            $('html').attr(name, '');
+                        }
                     }
                 });
             }
@@ -344,11 +348,15 @@ var pageLoadInit = function (page_load_config) {
 
             if ($body[0].attributes.length > 0) {
                 $.each($body[0].attributes, function (i, value) {
-                    if (this.specified) {
+                    if (this.specified && this.name != undefined) {
                         var name = this.name;
                         var value = this.value;
 
-                        $('body').attr(name, value);
+                        if (value != undefined) {
+                            $('body').attr(name, value);
+                        } else {
+                            $('body').attr(name, '');
+                        }
                     }
                 });
             }
