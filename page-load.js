@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.0.0
+ Version: 1.0.2
  */
 
 var pageLoadInit = function (page_load_config) {
@@ -112,12 +112,12 @@ var pageLoadInit = function (page_load_config) {
                 }
             },
             success: function (html) {
-                if (page_load_config.success != undefined) {
-                    page_load_config.success(href, page_data, html);
-                }
-
                 if (html != undefined && html != '') {
                     pageLoad(html, href);
+                }
+
+                if (page_load_config.success != undefined) {
+                    page_load_config.success(href, page_data, html);
                 }
             },
             error: function (e) {
@@ -132,9 +132,9 @@ var pageLoadInit = function (page_load_config) {
 
     function pageLoad(data, href) {
         var $doc;
+        var parser = new DOMParser();
 
         if (data != undefined && data != '') {
-            var parser = new DOMParser();
             var docs = parser.parseFromString(data, 'text/html');
             var $doc = $(docs);
         }
@@ -150,6 +150,10 @@ var pageLoadInit = function (page_load_config) {
             var body_outerHTML = '';
             var head_html = $head.html();
             var head_before_outerHTML = '';
+
+            // Set document
+            document = parser.parseFromString(data, 'text/html');
+            window.history.replaceState({ "data": data, "href": href }, $('title').text(), href);
 
             $('head').children().each(function () {
                 var rm = true;
@@ -245,8 +249,14 @@ var pageLoadInit = function (page_load_config) {
                         var src = $this.attr('src');
                         var disable = $this.attr('page-load-exclude-js');
 
-                        if (disable != undefined && (disable === true || disable == 'true' || disable == '1') || excludeJS.indexOf(src) != -1) {
+                        if (disable != undefined && (disable === true || disable == 'true' || disable == '1')) {
                             set = false;
+                        } else if (src != undefined && src != '' && excludeJS != undefined && excludeJS.length > 0) {
+                            $.each(excludeJS, function (i, name) {
+                                if (src.indexOf(name) !== -1) {
+                                    set = false;
+                                }
+                            });
                         }
                     }
 
@@ -254,6 +264,7 @@ var pageLoadInit = function (page_load_config) {
                         var index = exclude_objects.findIndex(x => x.tag === tagName);
 
                         if (index > -1) {
+                            outerHTML = exclude_objects[index].html;
                             exclude_objects.splice(index, 1);
                         } else {
                             var attrs = [];
@@ -296,6 +307,7 @@ var pageLoadInit = function (page_load_config) {
                                     var index = exclude_objects.findIndex(x => x.tag === value);
 
                                     if (index > -1) {
+                                        outerHTML = exclude_objects[index].html;
                                         exclude_objects.splice(index, 1);
                                     }
                                 });
@@ -320,7 +332,8 @@ var pageLoadInit = function (page_load_config) {
             }
 
             // Set to html
-            $('body').html(body_outerHTML);
+            $('body').empty();
+            insertHTML(body_outerHTML, document.body);
 
             // Remove attrs
             while ($('html')[0].attributes.length > 0) {
@@ -360,12 +373,33 @@ var pageLoadInit = function (page_load_config) {
                     }
                 });
             }
-
-            // Set document
-            document = parser.parseFromString(data, 'text/html');
-            window.history.replaceState({ "data": data, "href": href }, $('title').text(), href);
         } else {
             window.location.reload();
         }
+    }
+
+    function insertHTML(html, dest, clear = true) {
+        if (clear) dest.innerHTML = '';
+        let container = document.createElement('div');
+
+        container.innerHTML = html;
+
+        let scripts = container.querySelectorAll('script');
+        let nodes = container.childNodes;
+
+        for (let i = 0; i < nodes.length; i++) dest.appendChild(nodes[i].cloneNode(true));
+
+        for (let i = 0; i < scripts.length; i++) {
+            let script = document.createElement('script');
+            script.type = scripts[i].type || 'text/javascript';
+
+            if (scripts[i].hasAttribute('src')) script.src = scripts[i].src;
+            script.innerHTML = scripts[i].innerHTML;
+
+            document.head.appendChild(script);
+            document.head.removeChild(script);
+        }
+
+        return true;
     }
 };
