@@ -35,7 +35,7 @@ pageLoadInit({
         NProgress.done();
     },
     error: function (href, e, data) {
-        console.log('Error: ' + e);
+        NProgress.done();
     }
 });
 ```
@@ -95,6 +95,19 @@ If you want to do some magic things *before submitting* the request.
 ```js
 beforeSend: function (href, data) {
     // your code...
+}
+```
+
+--
+
+#### Event: ob load
+
+If you want to do some magical things on a *on load* request.
+
+```js
+onLoad: function (html, href) {
+    var doc = href;
+    return doc;
 }
 ```
 

@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.0.2
+ Version: 1.0.3
  */
 
 var pageLoadInit = function (page_load_config) {
@@ -107,6 +107,8 @@ var pageLoadInit = function (page_load_config) {
             type: 'GET',
             data: page_data,
             beforeSend: function () {
+                $("html, body").animate({ scrollTop: 0 }, 300);
+
                 if (page_load_config.beforeSend != undefined) {
                     page_load_config.beforeSend(href, page_data);
                 }
@@ -137,6 +139,14 @@ var pageLoadInit = function (page_load_config) {
         if (data != undefined && data != '') {
             var docs = parser.parseFromString(data, 'text/html');
             var $doc = $(docs);
+        }
+
+        if (page_load_config.onLoad != undefined) {
+            var onload = page_load_config.onLoad($doc, href);
+
+            if (onload != undefined && onload.length > 0) {
+                $doc = onload;
+            }
         }
 
         if ($doc != undefined && $doc.length > 0) {
