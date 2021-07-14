@@ -1,10 +1,10 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.0.5
+ Version: 1.0.6
  */
 
-var pageLoadConfig = {
+ var pageLoadConfig = {
     selector: 'a',
     excludeJS: [],
     excludeElement: ['[page-load-exclude="1"]', '[page-load-exclude="true"]'],
@@ -98,31 +98,6 @@ var pageLoadInit = function (page_load_config) {
                 if (run) {
                     pageLoadFromURL(href);
                     return false;
-                }
-            });
-
-            $('form').on('submit', function (e) {
-                e.preventDefault();
-                var data = $(this).serialize();
-                var action = $(this).attr('action');
-                var method = $(this).attr('method');
-
-                if (data != undefined && data != '') {
-                    var url = window.location.href;
-
-                    if (action != undefined && action != '') {
-                        url = action;
-                    }
-
-                    if (method != undefined && method != 'POST') {
-                        if (url.indexOf("?") > -1) {
-                            url = url.substr(0, url.indexOf("?"));
-                        }
-
-                        url = url + '?' + data;
-                    }
-
-                    pageLoadFromURL(url, data);
                 }
             });
         }
