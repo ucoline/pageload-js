@@ -31,10 +31,10 @@ pageLoadInit({
     beforeSend: function (href, data) {
         NProgress.start();
     },
-    success: function (href, data, html) {
+    onSuccess: function (href, data, html) {
         NProgress.done();
     },
-    error: function (href, e, data) {
+    onError: function (href, e, data) {
         NProgress.done();
     }
 });
@@ -100,7 +100,7 @@ beforeSend: function (href, data) {
 
 --
 
-#### Event: ob load
+#### Event: on load
 
 If you want to do some magical things on a *on load* request.
 
@@ -118,7 +118,7 @@ onLoad: function (html, href) {
 If you want to do some magical things on a *success* request.
 
 ```js
-success: function (href, html, data) {
+onSuccess: function (href, html, data) {
     // your code...
 }
 ```
@@ -130,8 +130,24 @@ success: function (href, html, data) {
 If you want to do some magical things on a *error* request.
 
 ```js
-error: function (href, e, data) {
+onError: function (href, e, data) {
     // your code...
 }
 ```
 
+### Refresh
+
+If you need refresh **page load** on ajax, you can use `pageLoadRefresh();`
+
+```js
+$.ajax({
+    type: 'POST',
+    dataType: 'json',
+    url: window.location.href,
+    data: data,
+    success: function (data) {
+        // refresh page load
+        pageLoadRefresh();
+    },
+});
+```
