@@ -134,20 +134,3 @@ onError: function (href, e, data) {
     // your code...
 }
 ```
-
-### Refresh
-
-If you need refresh **page load** on ajax, you can use `pageLoadRefresh();`
-
-```js
-$.ajax({
-    type: 'POST',
-    dataType: 'json',
-    url: window.location.href,
-    data: data,
-    success: function (data) {
-        // refresh page load
-        pageLoadRefresh();
-    },
-});
-```
