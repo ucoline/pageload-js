@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.0.6
+ Version: 1.0.7
  */
 
  var pageLoadConfig = {
@@ -49,16 +49,22 @@ var pageLoadInit = function (page_load_config) {
 
 (function ($) {
     $(document).ready(function () {
-        pageLoadRefresh();
+        var url = window.location.href;
+        var html = '<!DOCTYPE html>' + "\r\n" + $('html')[0].outerHTML;
+        window.history.pushState({ "data": html, "href": url }, "", url);
 
-        var html = '<!DOCTYPE html>' + $('html')[0].outerHTML;
-        window.history.pushState({ "data": html, "href": window.location.href }, $('title').text(), window.location.href);
+        pageLoadRefresh();
     });
 
     window.onpopstate = function (e) {
-        if (e.state) {
+        if (e.state != undefined) {
             var data = e.state.data;
-            pageLoadDraw(data);
+            var href = e.state.href;
+
+            if (data != undefined && href != undefined) {
+                console.log(e.state);
+                pageLoadDraw(data, href, false);
+            }
         }
     };
 
@@ -124,7 +130,7 @@ var pageLoadInit = function (page_load_config) {
             },
             success: function (html) {
                 if (html != undefined && html != '') {
-                    pageLoadDraw(html, href);
+                    pageLoadDraw(html, href, true);
                 }
 
                 if (pageLoadConfig.onSuccess != undefined && pageLoadConfig.onSuccess !== null) {
@@ -136,12 +142,12 @@ var pageLoadInit = function (page_load_config) {
                     pageLoadConfig.onError(href, page_data);
                 }
 
-                pageLoadDraw(e.responseText, href);
+                pageLoadDraw(e.responseText, href, true);
             }
         });
     }
 
-    var pageLoadDraw = function (data, href) {
+    var pageLoadDraw = function (data, href, pushState) {
         var $doc;
         var parser = new DOMParser();
 
@@ -158,6 +164,10 @@ var pageLoadInit = function (page_load_config) {
             }
         }
 
+        if (pushState != undefined && pushState) {
+            window.history.pushState({ "data": data, "href": href }, "", href);
+        }
+
         if ($doc != undefined && $doc.length > 0) {
             var $html = $doc.children('html');
             var $head = $html.children('head');
@@ -172,7 +182,6 @@ var pageLoadInit = function (page_load_config) {
 
             // Set document
             document = parser.parseFromString(data, 'text/html');
-            window.history.pushState({ "data": data, "href": href }, $('title').text(), href);
 
             $('head').children().each(function () {
                 var rm = true;
