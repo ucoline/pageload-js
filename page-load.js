@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.0.7
+ Version: 1.0.8
  */
 
  var pageLoadConfig = {
@@ -12,6 +12,7 @@
     onLoad: null,
     onSuccess: null,
     onError: null,
+    onPopstate: null,
 }
 
 var pageLoadInit = function (page_load_config) {
@@ -45,6 +46,10 @@ var pageLoadInit = function (page_load_config) {
     if (page_load_config.onError != undefined && typeof page_load_config.onError === 'function') {
         pageLoadConfig.onError = page_load_config.onError;
     }
+
+    if (page_load_config.onPopstate != undefined && typeof page_load_config.onPopstate === 'function') {
+        pageLoadConfig.onPopstate = page_load_config.onPopstate;
+    }
 };
 
 (function ($) {
@@ -62,9 +67,12 @@ var pageLoadInit = function (page_load_config) {
             var href = e.state.href;
 
             if (data != undefined && href != undefined) {
-                console.log(e.state);
                 pageLoadDraw(data, href, false);
             }
+        }
+
+        if (pageLoadConfig.onPopstate != undefined && pageLoadConfig.onPopstate !== null) {
+            pageLoadConfig.onPopstate(e);
         }
     };
 

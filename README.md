@@ -36,6 +36,9 @@ pageLoadInit({
     },
     onError: function (href, e, data) {
         NProgress.done();
+    },
+    onPopstate: function (e) {
+        // Actions on popstate
     }
 });
 ```
@@ -131,6 +134,18 @@ If you want to do some magical things on a *error* request.
 
 ```js
 onError: function (href, e, data) {
+    // your code...
+}
+```
+
+--
+
+#### Event: onPopstate
+
+If you want to do some magical things on a *onPopstate*
+
+```js
+onPopstate: function (e) {
     // your code...
 }
 ```
