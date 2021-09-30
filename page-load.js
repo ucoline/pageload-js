@@ -1,10 +1,10 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.0.8
+ Version: 1.0.9
  */
 
- var pageLoadConfig = {
+var pageLoadConfig = {
     selector: 'a',
     excludeJS: [],
     excludeElement: ['[page-load-exclude="1"]', '[page-load-exclude="true"]'],
@@ -146,11 +146,11 @@ var pageLoadInit = function (page_load_config) {
                 }
             },
             error: function (e) {
-                if (pageLoadConfig.onError != undefined && pageLoadConfig.onError !== null) {
-                    pageLoadConfig.onError(href, page_data);
-                }
-
                 pageLoadDraw(e.responseText, href, true);
+
+                if (pageLoadConfig.onError != undefined && pageLoadConfig.onError !== null) {
+                    pageLoadConfig.onError(href, e, page_data);
+                }
             }
         });
     }
