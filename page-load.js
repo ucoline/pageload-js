@@ -1,10 +1,10 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.0.9
+ Version: 1.1.0
  */
 
-var pageLoadConfig = {
+var _pageLoadConfigs = {
     selector: 'a',
     excludeJS: [],
     excludeElement: ['[page-load-exclude="1"]', '[page-load-exclude="true"]'],
@@ -17,38 +17,38 @@ var pageLoadConfig = {
 
 var pageLoadInit = function (page_load_config) {
     if (page_load_config.selector != undefined && page_load_config.selector != '') {
-        pageLoadConfig.selector = page_load_config.selector;
+        _pageLoadConfigs.selector = page_load_config.selector;
     }
 
     if (page_load_config.excludeJS != undefined && page_load_config.excludeJS.length > 0) {
-        pageLoadConfig.excludeJS = page_load_config.excludeJS;
+        _pageLoadConfigs.excludeJS = page_load_config.excludeJS;
     }
 
     if (page_load_config.excludeElement != undefined && page_load_config.excludeElement.length > 0) {
         page_load_config.excludeElement.push('[page-load-exclude="1"]');
         page_load_config.excludeElement.push('[page-load-exclude="true"]');
 
-        pageLoadConfig.excludeElement = page_load_config.excludeElement;
+        _pageLoadConfigs.excludeElement = page_load_config.excludeElement;
     }
 
     if (page_load_config.beforeSend != undefined && typeof page_load_config.beforeSend === 'function') {
-        pageLoadConfig.beforeSend = page_load_config.beforeSend;
+        _pageLoadConfigs.beforeSend = page_load_config.beforeSend;
     }
 
     if (page_load_config.onLoad != undefined && typeof page_load_config.onLoad === 'function') {
-        pageLoadConfig.onLoad = page_load_config.onLoad;
+        _pageLoadConfigs.onLoad = page_load_config.onLoad;
     }
 
     if (page_load_config.onSuccess != undefined && typeof page_load_config.onSuccess === 'function') {
-        pageLoadConfig.onSuccess = page_load_config.onSuccess;
+        _pageLoadConfigs.onSuccess = page_load_config.onSuccess;
     }
 
     if (page_load_config.onError != undefined && typeof page_load_config.onError === 'function') {
-        pageLoadConfig.onError = page_load_config.onError;
+        _pageLoadConfigs.onError = page_load_config.onError;
     }
 
     if (page_load_config.onPopstate != undefined && typeof page_load_config.onPopstate === 'function') {
-        pageLoadConfig.onPopstate = page_load_config.onPopstate;
+        _pageLoadConfigs.onPopstate = page_load_config.onPopstate;
     }
 };
 
@@ -66,21 +66,21 @@ var pageLoadInit = function (page_load_config) {
             var data = e.state.data;
             var href = e.state.href;
 
-            if (data != undefined && href != undefined) {
+            if (data != undefined && data != '' && href != undefined && href != '') {
                 pageLoadDraw(data, href, false);
             }
         }
 
-        if (pageLoadConfig.onPopstate != undefined && pageLoadConfig.onPopstate !== null) {
-            pageLoadConfig.onPopstate(e);
+        if (_pageLoadConfigs.onPopstate != undefined && _pageLoadConfigs.onPopstate !== null) {
+            _pageLoadConfigs.onPopstate(e);
         }
     };
 
     var pageLoadRefresh = function () {
         var site_url = document.location.origin;
 
-        if (pageLoadConfig.selector != undefined && pageLoadConfig.selector != '') {
-            $(document).on('click', pageLoadConfig.selector, function () {
+        if (_pageLoadConfigs.selector != undefined && _pageLoadConfigs.selector != '') {
+            $(document).on('click', _pageLoadConfigs.selector, function () {
                 var href = $(this).attr('href');
                 var disable = $(this).attr('page-load-disable');
                 var run = false;
@@ -132,8 +132,8 @@ var pageLoadInit = function (page_load_config) {
             beforeSend: function () {
                 $("html, body").animate({ scrollTop: 0 }, 300);
 
-                if (pageLoadConfig.beforeSend != undefined && pageLoadConfig.beforeSend !== null) {
-                    pageLoadConfig.beforeSend(href, page_data);
+                if (_pageLoadConfigs.beforeSend != undefined && _pageLoadConfigs.beforeSend !== null) {
+                    _pageLoadConfigs.beforeSend(href, page_data);
                 }
             },
             success: function (html) {
@@ -141,15 +141,15 @@ var pageLoadInit = function (page_load_config) {
                     pageLoadDraw(html, href, true);
                 }
 
-                if (pageLoadConfig.onSuccess != undefined && pageLoadConfig.onSuccess !== null) {
-                    pageLoadConfig.onSuccess(href, page_data);
+                if (_pageLoadConfigs.onSuccess != undefined && _pageLoadConfigs.onSuccess !== null) {
+                    _pageLoadConfigs.onSuccess(href, page_data);
                 }
             },
             error: function (e) {
                 pageLoadDraw(e.responseText, href, true);
 
-                if (pageLoadConfig.onError != undefined && pageLoadConfig.onError !== null) {
-                    pageLoadConfig.onError(href, e, page_data);
+                if (_pageLoadConfigs.onError != undefined && _pageLoadConfigs.onError !== null) {
+                    _pageLoadConfigs.onError(href, e, page_data);
                 }
             }
         });
@@ -164,8 +164,8 @@ var pageLoadInit = function (page_load_config) {
             var $doc = $(docs);
         }
 
-        if (pageLoadConfig.onLoad != undefined && pageLoadConfig.onLoad !== null) {
-            var onload = pageLoadConfig.onLoad($doc, href);
+        if (_pageLoadConfigs.onLoad != undefined && _pageLoadConfigs.onLoad !== null) {
+            var onload = _pageLoadConfigs.onLoad($doc, href);
 
             if (onload != undefined && onload.length > 0) {
                 $doc = onload;
@@ -187,6 +187,13 @@ var pageLoadInit = function (page_load_config) {
             var body_outerHTML = '';
             var head_html = $head.html();
             var head_before_outerHTML = '';
+
+            // Remove events
+            $(document).off();
+            $(document.body).off();
+
+            // Refresh page load
+            pageLoadRefresh();
 
             // Set document
             document = parser.parseFromString(data, 'text/html');
@@ -254,8 +261,8 @@ var pageLoadInit = function (page_load_config) {
                 head_before_outerHTML = outerHTML;
             });
 
-            if (pageLoadConfig.excludeElement != undefined && pageLoadConfig.excludeElement.length > 0) {
-                $.each(pageLoadConfig.excludeElement, function (i, value) {
+            if (_pageLoadConfigs.excludeElement != undefined && _pageLoadConfigs.excludeElement.length > 0) {
+                $.each(_pageLoadConfigs.excludeElement, function (i, value) {
                     var elements = $('body').children(value);
 
                     if (elements != undefined && elements.length > 0) {
@@ -287,8 +294,8 @@ var pageLoadInit = function (page_load_config) {
 
                         if (disable != undefined && (disable === true || disable == 'true' || disable == '1')) {
                             set = false;
-                        } else if (src != undefined && src != '' && pageLoadConfig.excludeJS != undefined && pageLoadConfig.excludeJS.length > 0) {
-                            $.each(pageLoadConfig.excludeJS, function (i, name) {
+                        } else if (src != undefined && src != '' && _pageLoadConfigs.excludeJS != undefined && _pageLoadConfigs.excludeJS.length > 0) {
+                            $.each(_pageLoadConfigs.excludeJS, function (i, name) {
                                 if (src.indexOf(name) !== -1) {
                                     set = false;
                                 }
@@ -367,8 +374,10 @@ var pageLoadInit = function (page_load_config) {
                 });
             }
 
-            // Set to html
+            // Empty body
             $('body').empty();
+
+            // Insert body html
             insertHTML(body_outerHTML, document.body);
 
             // Remove attrs
