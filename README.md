@@ -20,8 +20,7 @@ After including **NProgress** loader to the project, create a **scripts.js** fil
 pageLoadInit({
     selector: 'a',
     excludeJS: [
-        'https://code.jquery.com/jquery-3.6.0.min.js',
-        'https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js',
+        'jquery.min.js',
         'owl.carousel.min.js',
         'page-load.js'
     ],

@@ -1,0 +1,50 @@
+p {
+    margin-bottom: 20px;
+}
+
+p:last-child {
+    margin-bottom: 0;
+}
+
+.navbar {
+    margin-bottom: 20px;
+}
+
+.navbar-block {
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 5px 0;
+}
+
+.navbar-block a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.header-menu {
+    position: relative;
+}
+
+.header-menu li {
+    margin-left: 20px;
+}
+
+.header-logo {
+    display: inline-block;
+    font-size: 21px;
+    font-weight: 500;
+}
+
+.page-title {
+    font-size: 25px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+[data-owl="basic"] .item {
+    min-height: 200px;
+    background-color: #000;
+    color: #fff;
+    padding: 20px;
+}
