@@ -38,7 +38,10 @@ pageLoadInit({
     },
     onPopstate: function (e) {
         // Actions on popstate
-    }
+    },
+    onClick: function (element, href) {
+        // Actions on click selector element
+    },
 });
 ```
 
@@ -87,6 +90,18 @@ If you have a div or any tag that you want to keep on page load then use **exclu
 *You can give in array the tag name, #myid, .my-class and etc.*
 
 *By default: `[]`*
+
+--
+
+#### Event: on click
+
+If you want to do some magic things *on click selector element*.
+
+```js
+onClick: function (element, href) {
+    // your code...
+}
+```
 
 --
 

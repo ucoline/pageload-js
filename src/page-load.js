@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.1.0
+ Version: 1.1.3
  */
 
 var _pageLoadConfigs = {
@@ -9,6 +9,7 @@ var _pageLoadConfigs = {
     excludeJS: [],
     excludeElement: ['[page-load-exclude="1"]', '[page-load-exclude="true"]'],
     beforeSend: null,
+    onClick: null,
     onLoad: null,
     onSuccess: null,
     onError: null,
@@ -33,6 +34,10 @@ var pageLoadInit = function (page_load_config) {
 
     if (page_load_config.beforeSend != undefined && typeof page_load_config.beforeSend === 'function') {
         _pageLoadConfigs.beforeSend = page_load_config.beforeSend;
+    }
+
+    if (page_load_config.onClick != undefined && typeof page_load_config.onClick === 'function') {
+        _pageLoadConfigs.onClick = page_load_config.onClick;
     }
 
     if (page_load_config.onLoad != undefined && typeof page_load_config.onLoad === 'function') {
@@ -84,6 +89,12 @@ var pageLoadInit = function (page_load_config) {
                 var href = $(this).attr('href');
                 var disable = $(this).attr('page-load-disable');
                 var run = false;
+
+                $(this).attr('page-load-click', true);
+
+                if (_pageLoadConfigs.onClick != undefined && _pageLoadConfigs.onClick !== null) {
+                    _pageLoadConfigs.onClick($(this), href);
+                }
 
                 if (disable != undefined && (disable == 'true' || disable == '1' || disable === true)) {
                     return true;
