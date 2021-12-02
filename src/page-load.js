@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.1.3
+ Version: 1.1.4
  */
 
 var _pageLoadConfigs = {
@@ -153,7 +153,7 @@ var pageLoadInit = function (page_load_config) {
                 }
 
                 if (_pageLoadConfigs.onSuccess != undefined && _pageLoadConfigs.onSuccess !== null) {
-                    _pageLoadConfigs.onSuccess(href, page_data);
+                    _pageLoadConfigs.onSuccess(href, page_data, html);
                 }
             },
             error: function (e) {
