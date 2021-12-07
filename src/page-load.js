@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.1.4
+ Version: 1.1.5
  */
 
 var _pageLoadConfigs = {
@@ -88,6 +88,7 @@ var pageLoadInit = function (page_load_config) {
             $(document).on('click', _pageLoadConfigs.selector, function () {
                 var href = $(this).attr('href');
                 var disable = $(this).attr('page-load-disable');
+                var target = $(this).attr('target');
                 var run = false;
 
                 $(this).attr('page-load-click', true);
@@ -97,6 +98,10 @@ var pageLoadInit = function (page_load_config) {
                 }
 
                 if (disable != undefined && (disable == 'true' || disable == '1' || disable === true)) {
+                    return true;
+                }
+
+                if (target != undefined && target.toLowerCase() == '_blank') {
                     return true;
                 }
 
