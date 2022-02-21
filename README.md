@@ -18,11 +18,13 @@ After including **NProgress** loader to the project, create a **scripts.js** fil
 
 ```js
 pageLoadInit({
-    selector: 'a',
     excludeJS: [
+        'jquery.js',
         'jquery.min.js',
+        'popper.min.js',
+        'page-load.min.js',
         'owl.carousel.min.js',
-        'page-load.js'
+        'nprogress/init.min.js',
     ],
     excludeElement: [
         '#nprogress',
@@ -66,6 +68,18 @@ Select an item to call the function on click:
 *You can give tag name, #myid, .my-class and etc.*
 
 *By default: `'a'`*
+
+--
+
+#### Form selector
+
+Select an item to call the function on click:
+
+`formSelector: 'form'`
+
+*You can give tag name, #myform, .ajax-form and etc.*
+
+*By default: `'form'`*
 
 --
 

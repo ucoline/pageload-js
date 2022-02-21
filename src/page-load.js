@@ -1,11 +1,12 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.1.5
+ Version: 1.1.6
  */
 
 var _pageLoadConfigs = {
     selector: 'a',
+    formSelector: 'form',
     excludeJS: [],
     excludeElement: ['[page-load-exclude="1"]', '[page-load-exclude="true"]'],
     beforeSend: null,
@@ -19,6 +20,10 @@ var _pageLoadConfigs = {
 var pageLoadInit = function (page_load_config) {
     if (page_load_config.selector != undefined && page_load_config.selector != '') {
         _pageLoadConfigs.selector = page_load_config.selector;
+    }
+
+    if (page_load_config.formSelector != undefined && page_load_config.formSelector != '') {
+        _pageLoadConfigs.formSelector = page_load_config.formSelector;
     }
 
     if (page_load_config.excludeJS != undefined && page_load_config.excludeJS.length > 0) {
@@ -118,8 +123,11 @@ var pageLoadInit = function (page_load_config) {
 
                     if (parsed_url != undefined && parsed_url != '') {
                         var url = new URL(parsed_url);
+                        var ext = extFromURL(url.pathname);
 
-                        if (url != undefined && url.origin != undefined && url.origin == site_url) {
+                        if (ext != undefined && ext != '') {
+                            run = false;
+                        } else if (url != undefined && url.origin != undefined && url.origin == site_url) {
                             run = true;
                         }
                     }
@@ -131,44 +139,112 @@ var pageLoadInit = function (page_load_config) {
                 }
             });
         }
+
+        if (_pageLoadConfigs.formSelector != undefined && _pageLoadConfigs.formSelector != '') {
+            $(document).on('submit', _pageLoadConfigs.formSelector, function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                var data = form.serializeArray();
+                var form_url = form.attr('action');
+                var form_method = form.attr('method');
+
+                var method = 'GET';
+                var url = window.location.href;
+
+                if (form_url != undefined && form_url != '') {
+                    url = form_url;
+                }
+
+                if (form_method != undefined && form_method != '') {
+                    method = form_method;
+                }
+
+                if (form_url != '') {
+                    pageLoadFromURL(url, data, method);
+                }
+            });
+        }
     }
 
-    var pageLoadFromURL = function (href, data) {
-        window.stop();
-        var page_data = {};
+    var pageLoadFromURL = function (href, data, method) {
+        var page_data;
+        var filtered_url;
 
         if (data != undefined) {
             page_data = data;
         }
 
-        $.ajax({
-            url: href,
-            type: 'GET',
-            data: page_data,
-            beforeSend: function () {
-                $("html, body").animate({ scrollTop: 0 }, 300);
+        if (method != undefined && method != '') {
+            type = method;
+        } else {
+            type = 'GET';
+        }
 
-                if (_pageLoadConfigs.beforeSend != undefined && _pageLoadConfigs.beforeSend !== null) {
-                    _pageLoadConfigs.beforeSend(href, page_data);
-                }
-            },
-            success: function (html) {
-                if (html != undefined && html != '') {
-                    pageLoadDraw(html, href, true);
+        if (href != undefined && href != '') {
+            window.stop();
+            var url = new URL(href);
+            var site_url = document.location.origin;
+
+            if (type == 'GET' && page_data != undefined && page_data !== null) {
+                if (typeof page_data === 'string' && page_data != '') {
+                    page_data = new URLSearchParams(page_data);
                 }
 
-                if (_pageLoadConfigs.onSuccess != undefined && _pageLoadConfigs.onSuccess !== null) {
-                    _pageLoadConfigs.onSuccess(href, page_data, html);
-                }
-            },
-            error: function (e) {
-                pageLoadDraw(e.responseText, href, true);
-
-                if (_pageLoadConfigs.onError != undefined && _pageLoadConfigs.onError !== null) {
-                    _pageLoadConfigs.onError(href, e, page_data);
+                if ($.isArray(page_data)) {
+                    $.each(page_data, function (i, item) {
+                        if (item.value != undefined && item.value != '') {
+                            url.searchParams.set(item.name, item.value);
+                        } else {
+                            url.searchParams.delete(item.name);
+                        }
+                    });
+                } else if (typeof page_data === 'object') {
+                    $.each(page_data, function (key, value) {
+                        if (value != undefined && value != '') {
+                            url.searchParams.set(key, value);
+                        } else {
+                            url.searchParams.delete(key);
+                        }
+                    });
                 }
             }
-        });
+
+            if (url != undefined && url.origin != undefined && url.origin == site_url) {
+                filtered_url = url.href;
+            }
+        }
+
+        if (filtered_url != undefined && filtered_url != '') {
+            $.ajax({
+                url: href,
+                type: type,
+                data: page_data,
+                beforeSend: function () {
+                    $("html, body").animate({ scrollTop: 0 }, 300);
+
+                    if (_pageLoadConfigs.beforeSend != undefined && _pageLoadConfigs.beforeSend !== null) {
+                        _pageLoadConfigs.beforeSend(filtered_url, page_data);
+                    }
+                },
+                success: function (html) {
+                    if (html != undefined && html != '') {
+                        pageLoadDraw(html, filtered_url, true);
+                    }
+
+                    if (_pageLoadConfigs.onSuccess != undefined && _pageLoadConfigs.onSuccess !== null) {
+                        _pageLoadConfigs.onSuccess(filtered_url, page_data, html);
+                    }
+                },
+                error: function (e) {
+                    pageLoadDraw(e.responseText, filtered_url, true);
+
+                    if (_pageLoadConfigs.onError != undefined && _pageLoadConfigs.onError !== null) {
+                        _pageLoadConfigs.onError(filtered_url, e, page_data);
+                    }
+                }
+            });
+        }
     }
 
     var pageLoadDraw = function (data, href, pushState) {
@@ -462,5 +538,13 @@ var pageLoadInit = function (page_load_config) {
         }
 
         return true;
+    }
+
+    var extFromURL = function (url) {
+        var extStart = url.indexOf('.', url.lastIndexOf('/') + 1);
+        if (extStart == -1) return false;
+        var ext = url.substr(extStart + 1),
+            extEnd = ext.search(/$|[?#]/);
+        return ext.substring(0, extEnd);
     }
 })(jQuery);
