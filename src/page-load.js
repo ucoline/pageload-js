@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.1.6
+ Version: 1.1.7
  */
 
 var _pageLoadConfigs = {
@@ -87,14 +87,13 @@ var pageLoadInit = function (page_load_config) {
     };
 
     var pageLoadRefresh = function () {
-        var site_url = document.location.origin;
+        var location_host = window.location.host;
 
         if (_pageLoadConfigs.selector != undefined && _pageLoadConfigs.selector != '') {
             $(document).on('click', _pageLoadConfigs.selector, function () {
                 var href = $(this).attr('href');
                 var disable = $(this).attr('page-load-disable');
                 var target = $(this).attr('target');
-                var run = false;
 
                 $(this).attr('page-load-click', true);
 
@@ -111,8 +110,8 @@ var pageLoadInit = function (page_load_config) {
                 }
 
                 if (href != undefined && href != '#' && href != '') {
-                    var hash = href.charAt(0);
                     var parsed_url = '';
+                    var hash = href.charAt(0);
 
                     if (hash != '#') {
                         var parser = document.createElement('a');
@@ -122,20 +121,27 @@ var pageLoadInit = function (page_load_config) {
                     }
 
                     if (parsed_url != undefined && parsed_url != '') {
+                        var run = false;
                         var url = new URL(parsed_url);
-                        var ext = extFromURL(url.pathname);
 
-                        if (ext != undefined && ext != '') {
-                            run = false;
-                        } else if (url != undefined && url.origin != undefined && url.origin == site_url) {
-                            run = true;
+                        if (url != undefined) {
+                            var ext = extFromURL(url.pathname);
+                            var url_host = url.host.replace('www.', '');
+                            var site_host = location_host.replace('www.', '');
+
+                            if (ext != undefined && ext != '') {
+                                run = false;
+                            } else if (url_host == site_host) {
+                                run = true;
+                            }
+                        }
+
+                        if (run) {
+                            var filtered_url = window.location.protocol + '//' + window.location.host + url.pathname + url.search;
+                            pageLoadFromURL(filtered_url);
+                            return false;
                         }
                     }
-                }
-
-                if (run) {
-                    pageLoadFromURL(href);
-                    return false;
                 }
             });
         }
@@ -184,9 +190,12 @@ var pageLoadInit = function (page_load_config) {
         if (href != undefined && href != '') {
             window.stop();
             var url = new URL(href);
-            var site_url = document.location.origin;
+            var host = window.location.host;
 
             if (type == 'GET' && page_data != undefined && page_data !== null) {
+                var url_host = url.host.replace('www.', '');
+                var site_host = host.replace('www.', '');
+
                 if (typeof page_data === 'string' && page_data != '') {
                     page_data = new URLSearchParams(page_data);
                 }
@@ -210,7 +219,7 @@ var pageLoadInit = function (page_load_config) {
                 }
             }
 
-            if (url != undefined && url.origin != undefined && url.origin == site_url) {
+            if (site_host == url_host) {
                 filtered_url = url.href;
             }
         }
