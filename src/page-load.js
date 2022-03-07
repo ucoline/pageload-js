@@ -1,10 +1,11 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.1.7
+ Version: 1.1.8
  */
 
-var _pageLoadConfigs = {
+ var _pageLoadConfigs = {
+    active: true,
     selector: 'a',
     formSelector: 'form',
     excludeJS: [],
@@ -18,6 +19,10 @@ var _pageLoadConfigs = {
 }
 
 var pageLoadInit = function (page_load_config) {
+    if (page_load_config.active != undefined && page_load_config.active === false) {
+        _pageLoadConfigs.active = false;
+    }
+
     if (page_load_config.selector != undefined && page_load_config.selector != '') {
         _pageLoadConfigs.selector = page_load_config.selector;
     }
@@ -64,25 +69,29 @@ var pageLoadInit = function (page_load_config) {
 
 (function ($) {
     $(document).ready(function () {
-        var url = window.location.href;
-        var html = '<!DOCTYPE html>' + "\r\n" + $('html')[0].outerHTML;
-        window.history.pushState({ "data": html, "href": url }, "", url);
+        if (isActive()) {
+            var url = window.location.href;
+            var html = '<!DOCTYPE html>' + "\r\n" + $('html')[0].outerHTML;
+            window.history.pushState({ "data": html, "href": url }, "", url);
 
-        pageLoadRefresh();
+            pageLoadRefresh();
+        }
     });
 
     window.onpopstate = function (e) {
-        if (e.state != undefined) {
-            var data = e.state.data;
-            var href = e.state.href;
+        if (isActive()) {
+            if (e.state != undefined) {
+                var data = e.state.data;
+                var href = e.state.href;
 
-            if (data != undefined && data != '' && href != undefined && href != '') {
-                pageLoadDraw(data, href, false);
+                if (data != undefined && data != '' && href != undefined && href != '') {
+                    pageLoadDraw(data, href, false);
+                }
             }
-        }
 
-        if (_pageLoadConfigs.onPopstate != undefined && _pageLoadConfigs.onPopstate !== null) {
-            _pageLoadConfigs.onPopstate(e);
+            if (_pageLoadConfigs.onPopstate != undefined && _pageLoadConfigs.onPopstate !== null) {
+                _pageLoadConfigs.onPopstate(e);
+            }
         }
     };
 
@@ -91,55 +100,57 @@ var pageLoadInit = function (page_load_config) {
 
         if (_pageLoadConfigs.selector != undefined && _pageLoadConfigs.selector != '') {
             $(document).on('click', _pageLoadConfigs.selector, function () {
-                var href = $(this).attr('href');
-                var disable = $(this).attr('page-load-disable');
-                var target = $(this).attr('target');
+                if (isActive()) {
+                    var href = $(this).attr('href');
+                    var disable = $(this).attr('page-load-disable');
+                    var target = $(this).attr('target');
 
-                $(this).attr('page-load-click', true);
+                    $(this).attr('page-load-click', true);
 
-                if (_pageLoadConfigs.onClick != undefined && _pageLoadConfigs.onClick !== null) {
-                    _pageLoadConfigs.onClick($(this), href);
-                }
-
-                if (disable != undefined && (disable == 'true' || disable == '1' || disable === true)) {
-                    return true;
-                }
-
-                if (target != undefined && target.toLowerCase() == '_blank') {
-                    return true;
-                }
-
-                if (href != undefined && href != '#' && href != '') {
-                    var parsed_url = '';
-                    var hash = href.charAt(0);
-
-                    if (hash != '#') {
-                        var parser = document.createElement('a');
-
-                        parser.href = href;
-                        parsed_url = parser.href;
+                    if (_pageLoadConfigs.onClick != undefined && _pageLoadConfigs.onClick !== null) {
+                        _pageLoadConfigs.onClick($(this), href);
                     }
 
-                    if (parsed_url != undefined && parsed_url != '') {
-                        var run = false;
-                        var url = new URL(parsed_url);
+                    if (disable != undefined && (disable == 'true' || disable == '1' || disable === true)) {
+                        return true;
+                    }
 
-                        if (url != undefined) {
-                            var ext = extFromURL(url.pathname);
-                            var url_host = url.host.replace('www.', '');
-                            var site_host = location_host.replace('www.', '');
+                    if (target != undefined && target.toLowerCase() == '_blank') {
+                        return true;
+                    }
 
-                            if (ext != undefined && ext != '') {
-                                run = false;
-                            } else if (url_host == site_host) {
-                                run = true;
-                            }
+                    if (href != undefined && href != '#' && href != '') {
+                        var parsed_url = '';
+                        var hash = href.charAt(0);
+
+                        if (hash != '#') {
+                            var parser = document.createElement('a');
+
+                            parser.href = href;
+                            parsed_url = parser.href;
                         }
 
-                        if (run) {
-                            var filtered_url = window.location.protocol + '//' + window.location.host + url.pathname + url.search;
-                            pageLoadFromURL(filtered_url);
-                            return false;
+                        if (parsed_url != undefined && parsed_url != '') {
+                            var run = false;
+                            var url = new URL(parsed_url);
+
+                            if (url != undefined) {
+                                var ext = extFromURL(url.pathname);
+                                var url_host = url.host.replace('www.', '');
+                                var site_host = location_host.replace('www.', '');
+
+                                if (ext != undefined && ext != '') {
+                                    run = false;
+                                } else if (url_host == site_host) {
+                                    run = true;
+                                }
+                            }
+
+                            if (run) {
+                                var filtered_url = window.location.protocol + '//' + window.location.host + url.pathname + url.search;
+                                pageLoadFromURL(filtered_url);
+                                return false;
+                            }
                         }
                     }
                 }
@@ -148,26 +159,28 @@ var pageLoadInit = function (page_load_config) {
 
         if (_pageLoadConfigs.formSelector != undefined && _pageLoadConfigs.formSelector != '') {
             $(document).on('submit', _pageLoadConfigs.formSelector, function (e) {
-                e.preventDefault();
+                if (isActive()) {
+                    e.preventDefault();
 
-                var form = $(this);
-                var data = form.serializeArray();
-                var form_url = form.attr('action');
-                var form_method = form.attr('method');
+                    var form = $(this);
+                    var data = form.serializeArray();
+                    var form_url = form.attr('action');
+                    var form_method = form.attr('method');
 
-                var method = 'GET';
-                var url = window.location.href;
+                    var method = 'GET';
+                    var url = window.location.href;
 
-                if (form_url != undefined && form_url != '') {
-                    url = form_url;
-                }
+                    if (form_url != undefined && form_url != '') {
+                        url = form_url;
+                    }
 
-                if (form_method != undefined && form_method != '') {
-                    method = form_method;
-                }
+                    if (form_method != undefined && form_method != '') {
+                        method = form_method;
+                    }
 
-                if (form_url != '') {
-                    pageLoadFromURL(url, data, method);
+                    if (form_url != '') {
+                        pageLoadFromURL(url, data, method);
+                    }
                 }
             });
         }
@@ -555,5 +568,15 @@ var pageLoadInit = function (page_load_config) {
         var ext = url.substr(extStart + 1),
             extEnd = ext.search(/$|[?#]/);
         return ext.substring(0, extEnd);
+    }
+
+    var isActive = function () {
+        if (_pageLoadConfigs.active === false) {
+            return false;
+        } else if (typeof deactivatePageLoad !== 'undefined' && deactivatePageLoad === true) {
+            return false;
+        }
+
+        return true;
     }
 })(jQuery);
