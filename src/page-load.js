@@ -1,10 +1,10 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.1.8
+ Version: 1.1.9
  */
 
- var _pageLoadConfigs = {
+var _pageLoadConfigs = {
     active: true,
     selector: 'a',
     formSelector: 'form',
@@ -491,46 +491,57 @@ var pageLoadInit = function (page_load_config) {
             // Empty body
             $('body').empty();
 
-            // Insert body html
-            insertHTML(body_outerHTML, document.body);
+            // Check active
+            if (isActive()) {
+                // Insert body html
+                insertHTML(body_outerHTML, document.body);
 
-            // Remove attrs
-            while ($('html')[0].attributes.length > 0) {
-                $('html')[0].removeAttributeNode($('html')[0].attributes[0]);
-            }
+                // Remove attrs
+                while ($('html')[0].attributes.length > 0) {
+                    $('html')[0].removeAttributeNode($('html')[0].attributes[0]);
+                }
 
-            if ($html[0].attributes.length > 0) {
-                $.each($html[0].attributes, function (i, value) {
-                    if (this.specified && this.name != undefined) {
-                        var name = this.name;
-                        var value = this.value;
+                if ($html[0].attributes.length > 0) {
+                    $.each($html[0].attributes, function (i, value) {
+                        if (this.specified && this.name != undefined) {
+                            var name = this.name;
+                            var value = this.value;
 
-                        if (value != undefined) {
-                            $('html').attr(name, value);
-                        } else {
-                            $('html').attr(name, '');
+                            if (value != undefined) {
+                                $('html').attr(name, value);
+                            } else {
+                                $('html').attr(name, '');
+                            }
                         }
-                    }
-                });
-            }
+                    });
+                }
 
-            while ($('body')[0].attributes.length > 0) {
-                $('body')[0].removeAttributeNode($('body')[0].attributes[0]);
-            }
+                while ($('body')[0].attributes.length > 0) {
+                    $('body')[0].removeAttributeNode($('body')[0].attributes[0]);
+                }
 
-            if ($body[0].attributes.length > 0) {
-                $.each($body[0].attributes, function (i, value) {
-                    if (this.specified && this.name != undefined) {
-                        var name = this.name;
-                        var value = this.value;
+                if ($body[0].attributes.length > 0) {
+                    $.each($body[0].attributes, function (i, value) {
+                        if (this.specified && this.name != undefined) {
+                            var name = this.name;
+                            var value = this.value;
 
-                        if (value != undefined) {
-                            $('body').attr(name, value);
-                        } else {
-                            $('body').attr(name, '');
+                            if (value != undefined) {
+                                $('body').attr(name, value);
+                            } else {
+                                $('body').attr(name, '');
+                            }
                         }
-                    }
+                    });
+                }
+            } else {
+                $('body').css({
+                    'opacity': 0,
+                    'display': 'none',
+                    'overflow': 'hidden',
                 });
+
+                window.location.reload();
             }
         } else {
             window.location.reload();
