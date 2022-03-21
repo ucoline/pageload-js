@@ -83,6 +83,18 @@ Select an item to call the function on click:
 
 --
 
+#### Exclude selector
+
+You can exclude forms from pageload by using:
+
+`excludeForm: []`
+
+*You can give tag name, #myform, .ajax-form and etc.*
+
+*By default: `'[]'`*
+
+--
+
 #### Exclude JS
 
 Every time the page is loaded we don't want to reload any js libraries. This is why we use **excludeJS** to exclude some of them.
