@@ -309,6 +309,17 @@ var pageLoadInit = function (page_load_config) {
         var $doc;
         var parser = new DOMParser();
 
+        if (!isActive()) {
+            $('body').css({
+                'opacity': 0,
+                'display': 'none',
+                'overflow': 'hidden',
+            });
+
+            window.location.reload();
+            return false;
+        }
+
         if (data != undefined && data != '') {
             var docs = parser.parseFromString(data, 'text/html');
             var $doc = $(docs);
@@ -494,57 +505,46 @@ var pageLoadInit = function (page_load_config) {
             // Empty body
             $('body').empty();
 
-            // Check active
-            if (isActive()) {
-                // Insert body html
-                insertHTML(body_outerHTML, document.body);
+            // Insert body html
+            insertHTML(body_outerHTML, document.body);
 
-                // Remove attrs
-                while ($('html')[0].attributes.length > 0) {
-                    $('html')[0].removeAttributeNode($('html')[0].attributes[0]);
-                }
+            // Remove attrs
+            while ($('html')[0].attributes.length > 0) {
+                $('html')[0].removeAttributeNode($('html')[0].attributes[0]);
+            }
 
-                if ($html[0].attributes.length > 0) {
-                    $.each($html[0].attributes, function (i, value) {
-                        if (this.specified && this.name != undefined) {
-                            var name = this.name;
-                            var value = this.value;
+            if ($html[0].attributes.length > 0) {
+                $.each($html[0].attributes, function (i, value) {
+                    if (this.specified && this.name != undefined) {
+                        var name = this.name;
+                        var value = this.value;
 
-                            if (value != undefined) {
-                                $('html').attr(name, value);
-                            } else {
-                                $('html').attr(name, '');
-                            }
+                        if (value != undefined) {
+                            $('html').attr(name, value);
+                        } else {
+                            $('html').attr(name, '');
                         }
-                    });
-                }
-
-                while ($('body')[0].attributes.length > 0) {
-                    $('body')[0].removeAttributeNode($('body')[0].attributes[0]);
-                }
-
-                if ($body[0].attributes.length > 0) {
-                    $.each($body[0].attributes, function (i, value) {
-                        if (this.specified && this.name != undefined) {
-                            var name = this.name;
-                            var value = this.value;
-
-                            if (value != undefined) {
-                                $('body').attr(name, value);
-                            } else {
-                                $('body').attr(name, '');
-                            }
-                        }
-                    });
-                }
-            } else {
-                $('body').css({
-                    'opacity': 0,
-                    'display': 'none',
-                    'overflow': 'hidden',
+                    }
                 });
+            }
 
-                window.location.reload();
+            while ($('body')[0].attributes.length > 0) {
+                $('body')[0].removeAttributeNode($('body')[0].attributes[0]);
+            }
+
+            if ($body[0].attributes.length > 0) {
+                $.each($body[0].attributes, function (i, value) {
+                    if (this.specified && this.name != undefined) {
+                        var name = this.name;
+                        var value = this.value;
+
+                        if (value != undefined) {
+                            $('body').attr(name, value);
+                        } else {
+                            $('body').attr(name, '');
+                        }
+                    }
+                });
             }
         } else {
             window.location.reload();
@@ -595,20 +595,11 @@ var pageLoadInit = function (page_load_config) {
             return false;
         } else if (typeof deactivatePageLoad !== 'undefined' && deactivatePageLoad === true) {
             return false;
+        } else if (window.deactivatePageLoad !== 'undefined' && window.deactivatePageLoad === true) {
+            return false;
         }
 
         return true;
-    }
-
-    $.fn.getAllAttrs = function (fnc) {
-        var obj = {};
-
-        $.each(this[0].attributes, function () {
-            if (this.name == 'value') return; // Avoid someone (optional)
-            if (this.specified) obj[this.name] = this.value;
-        });
-
-        return obj;
     }
 
     var getAllAttributes = function (element) {
@@ -644,5 +635,16 @@ var pageLoadInit = function (page_load_config) {
         });
 
         return attrs;
+    }
+
+    $.fn.getAllAttrs = function (fnc) {
+        var obj = {};
+
+        $.each(this[0].attributes, function () {
+            if (this.name == 'value') return;
+            if (this.specified) obj[this.name] = this.value;
+        });
+
+        return obj;
     }
 })(jQuery);
