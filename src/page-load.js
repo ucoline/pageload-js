@@ -321,8 +321,7 @@ var pageLoadInit = function (page_load_config) {
         }
 
         if (data != undefined && data != '') {
-            var docs = parser.parseFromString(data, 'text/html');
-            var $doc = $(docs);
+            $doc = $(parser.parseFromString(data, 'text/html'));
         }
 
         if (_pageLoadConfigs.onLoad != undefined && _pageLoadConfigs.onLoad !== null) {
