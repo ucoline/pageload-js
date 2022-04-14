@@ -148,8 +148,8 @@ beforeSend: function (href, data) {
 If you want to do some magical things on a *on load* request.
 
 ```js
-onLoad: function (html, href) {
-    var doc = href;
+onLoad: function (doc, href) {
+    // your code...
     return doc;
 }
 ```
