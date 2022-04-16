@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.2.1
+ Version: 1.2.2
  */
 
 var _pageLoadConfigs = {
@@ -290,7 +290,9 @@ var pageLoadInit = function (page_load_config) {
           }
 
           if (_pageLoadConfigs.onSuccess != undefined && _pageLoadConfigs.onSuccess !== null) {
-            _pageLoadConfigs.onSuccess(filtered_url, page_data, html);
+            $.when(pageLoadDraw(html, filtered_url, true)).then(_pageLoadConfigs.onSuccess(filtered_url, page_data, html));
+          } else if (html != undefined && html != '') {
+            pageLoadDraw(html, filtered_url, true);
           }
         },
         error: function (xhr, exception) {
@@ -634,11 +636,14 @@ var pageLoadInit = function (page_load_config) {
       }
 
       if (src != undefined && src != '') {
-        script.src = src;
         var data = getScript(src);
 
         if (data.status == 200) {
           loaded.push(data);
+          code = data.code;
+          script.setAttribute('data-src', src);
+        } else {
+          script.src = src;
         }
       }
 
@@ -654,7 +659,7 @@ var pageLoadInit = function (page_load_config) {
   }
 
   function getScript(url, callback) {
-    var jqxhr = $.ajax({
+    var request = $.ajax({
       url: url,
       dataType: 'script',
       success: callback,
@@ -662,7 +667,7 @@ var pageLoadInit = function (page_load_config) {
       cache: true,
     });
 
-    return { status: jqxhr.status, action: jqxhr.statusText };
+    return { status: request.status, action: request.statusText, code: request.responseText };
   }
 
   var extFromURL = function (url) {
