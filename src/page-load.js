@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.2.3
+ Version: 1.2.4
  */
 
 var _pageLoadConfigs = {
@@ -74,6 +74,21 @@ var pageLoadInit = function (page_load_config) {
 
     if (page_load_config.onPopstate != undefined && typeof page_load_config.onPopstate === 'function') {
         _pageLoadConfigs.onPopstate = page_load_config.onPopstate;
+    }
+};
+
+var pageLoadPushUrl = function (data) {
+    var url = data.url;
+    var pathname = data.pathname;
+
+    if (url != undefined && url != '') {
+        var newurl = new URL(url);
+        pathname = newurl.pathname;
+    }
+
+    if (pathname != undefined && pathname != '') {
+        var html = '<!DOCTYPE html>' + "\r\n" + $('html')[0].outerHTML;
+        window.history.pushState({ "data": html, "href": pathname }, "", pathname);
     }
 };
 
