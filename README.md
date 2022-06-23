@@ -38,12 +38,6 @@ pageLoadInit({
     onError: function (href, e, data) {
         NProgress.done();
     },
-    onPopstate: function (e) {
-        // Actions on popstate
-    },
-    onClick: function (element, href) {
-        // Actions on click selector element
-    },
 });
 ```
 
@@ -119,16 +113,15 @@ If you have a div or any tag that you want to keep on page load then use **exclu
 
 --
 
-#### Event: on click
+#### Event: before run
 
-If you want to do some magic things *on click selector element*.
+If you want to do some magic things *before run* the script.
 
 ```js
-onClick: function (element, href) {
+beforeRun: function (element, href, e) {
     // your code...
 }
 ```
-
 --
 
 #### Event: before send
@@ -140,7 +133,17 @@ beforeSend: function (href, data) {
     // your code...
 }
 ```
+--
 
+#### Event: on click
+
+If you want to do some magic things *on click selector element*.
+
+```js
+onClick: function (element, href) {
+    // your code...
+}
+```
 --
 
 #### Event: on load

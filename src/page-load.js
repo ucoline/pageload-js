@@ -11,6 +11,7 @@ var _pageLoadConfigs = {
     excludeJS: [],
     excludeForm: [],
     excludeElement: ['[page-load-exclude="1"]', '[page-load-exclude="true"]'],
+    beforeRun: null,
     beforeSend: null,
     onClick: null,
     onLoad: null,
@@ -50,6 +51,10 @@ var pageLoadInit = function (page_load_config) {
         page_load_config.excludeElement.push('[page-load-exclude="true"]');
 
         _pageLoadConfigs.excludeElement = page_load_config.excludeElement;
+    }
+
+    if (page_load_config.beforeRun != undefined && typeof page_load_config.beforeRun === 'function') {
+        _pageLoadConfigs.beforeRun = page_load_config.beforeRun;
     }
 
     if (page_load_config.beforeSend != undefined && typeof page_load_config.beforeSend === 'function') {
@@ -137,10 +142,6 @@ var pageLoadPushUrl = function (data) {
 
                     if (_pageLoadConfigs.onClick != undefined && _pageLoadConfigs.onClick !== null) {
                         _pageLoadConfigs.onClick($(this), href, e);
-
-                        if (window.stopPageLoad !== 'undefined' && window.stopPageLoad === true) {
-                            return false;
-                        }
                     }
 
                     if (disable != undefined && (disable == 'true' || disable == '1' || disable === true)) {
@@ -160,6 +161,14 @@ var pageLoadPushUrl = function (data) {
                     }
 
                     if (href != undefined && href != '' && href != '#' && href.charAt(0) != '#') {
+                        if (_pageLoadConfigs.beforeRun != undefined && _pageLoadConfigs.beforeRun !== null) {
+                            _pageLoadConfigs.beforeRun($(this), href, e);
+                        }
+
+                        if (window.stopPageLoad !== 'undefined' && window.stopPageLoad === true) {
+                            return false;
+                        }
+
                         var parsed_url = '';
                         var hash = href.charAt(0);
 
