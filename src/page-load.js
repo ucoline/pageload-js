@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.2.4
+ Version: 1.2.5
  */
 
 var _pageLoadConfigs = {
@@ -126,7 +126,7 @@ var pageLoadPushUrl = function (data) {
         var location_host = window.location.host;
 
         if (_pageLoadConfigs.selector != undefined && _pageLoadConfigs.selector != '') {
-            $(document).on('click', _pageLoadConfigs.selector, function () {
+            $(document).on('click', _pageLoadConfigs.selector, function (e) {
                 if (isActive()) {
                     var href = $(this).attr('href');
                     var disable = $(this).attr('page-load-disable');
@@ -136,7 +136,11 @@ var pageLoadPushUrl = function (data) {
                     $(this).attr('page-load-click', true);
 
                     if (_pageLoadConfigs.onClick != undefined && _pageLoadConfigs.onClick !== null) {
-                        _pageLoadConfigs.onClick($(this), href);
+                        _pageLoadConfigs.onClick($(this), href, e);
+
+                        if (window.stopPageLoad !== 'undefined' && window.stopPageLoad === true) {
+                            return false;
+                        }
                     }
 
                     if (disable != undefined && (disable == 'true' || disable == '1' || disable === true)) {
@@ -148,6 +152,10 @@ var pageLoadPushUrl = function (data) {
                     }
 
                     if (target != undefined && target.toLowerCase() == '_blank') {
+                        return true;
+                    }
+
+                    if (e.ctrlKey) {
                         return true;
                     }
 
