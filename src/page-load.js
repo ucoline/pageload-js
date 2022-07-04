@@ -97,6 +97,21 @@ var pageLoadPushUrl = function (data) {
     }
 };
 
+var pageLoadClickTheUrl = function (href) {
+    $('#page_load_temp_link_for_click').remove();
+
+    if (href != undefined && href != '') {
+        var a = $('<a />');
+
+        a.attr('href', href);
+        a.attr('style', 'display:none');
+        a.attr('id', 'page_load_temp_link_for_click');
+
+        $('body').append(a);
+        $('#page_load_temp_link_for_click').trigger('click');
+    }
+};
+
 (function ($) {
     var request = null;
 
