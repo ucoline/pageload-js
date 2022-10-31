@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.2.5
+ Version: 1.2.6
  */
 
 var _pageLoadConfigs = {
@@ -216,6 +216,8 @@ var pageLoadClickTheUrl = function (href) {
                                 return false;
                             }
                         }
+
+                        window.location.href = href;
                     }
                 }
             });
