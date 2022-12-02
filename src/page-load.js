@@ -1,7 +1,7 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.2.6
+ Version: 1.2.7
  */
 
 var _pageLoadConfigs = {
@@ -89,6 +89,14 @@ var pageLoadPushUrl = function (data) {
     if (url != undefined && url != '') {
         var newurl = new URL(url);
         pathname = newurl.pathname;
+
+        if (newurl.search != undefined && newurl.search != '') {
+            pathname += newurl.search;
+        }
+
+        if (newurl.hash != undefined && newurl.hash != '') {
+            pathname += newurl.hash;
+        }
     }
 
     if (pathname != undefined && pathname != '') {
