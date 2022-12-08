@@ -1,8 +1,16 @@
 /*
  Page load - jQuery library
  URL: https://github.com/ucoder92/pageload-js
- Version: 1.2.7
+ Version: 1.2.8
  */
+
+var _pageLoadEvents = {
+    onLoad: [],
+    onClick: [],
+    onError: [],
+    onSuccess: [],
+    onPopstate: [],
+};
 
 var _pageLoadConfigs = {
     active: true,
@@ -13,10 +21,10 @@ var _pageLoadConfigs = {
     excludeElement: ['[page-load-exclude="1"]', '[page-load-exclude="true"]'],
     beforeRun: null,
     beforeSend: null,
-    onClick: null,
     onLoad: null,
-    onSuccess: null,
     onError: null,
+    onClick: null,
+    onSuccess: null,
     onPopstate: null,
     scrollToTop: true,
 }
@@ -101,7 +109,10 @@ var pageLoadPushUrl = function (data) {
 
     if (pathname != undefined && pathname != '') {
         var html = '<!DOCTYPE html>' + "\r\n" + $('html')[0].outerHTML;
-        window.history.pushState({ "data": html, "href": pathname }, "", pathname);
+        window.history.pushState({
+            "data": html,
+            "href": pathname
+        }, "", pathname);
     }
 };
 
@@ -120,6 +131,12 @@ var pageLoadClickTheUrl = function (href) {
     }
 };
 
+var pageLoadEvent = function (eventName, func) {
+    if (eventName != undefined && eventName != '' && func != undefined && func !== null && _pageLoadEvents[eventName] != undefined) {
+        _pageLoadEvents[eventName].push(func);
+    }
+};
+
 (function ($) {
     var request = null;
 
@@ -127,14 +144,23 @@ var pageLoadClickTheUrl = function (href) {
         if (isActive()) {
             var url = window.location.href;
             var html = '<!DOCTYPE html>' + "\r\n" + $('html')[0].outerHTML;
-            window.history.pushState({ "data": html, "href": url }, "", url);
+            window.history.pushState({
+                "data": html,
+                "href": url
+            }, "", url);
 
             pageLoadRefresh();
         }
     });
 
     window.onpopstate = function (e) {
-        if (isActive()) {
+        var events = runEvents('onPopstate');
+
+        if (events != undefined && $.inArray(false, events) >= 0) {
+            e.preventDefault();
+            window.history.forward();
+            return false;
+        } else if (isActive()) {
             if (e.state != undefined) {
                 var data = e.state.data;
                 var href = e.state.href;
@@ -339,7 +365,9 @@ var pageLoadClickTheUrl = function (href) {
                 },
                 beforeSend: function () {
                     if (_pageLoadConfigs.scrollToTop) {
-                        $("html, body").animate({ scrollTop: 0 }, 300);
+                        $("html, body").animate({
+                            scrollTop: 0
+                        }, 300);
                     }
 
                     if (_pageLoadConfigs.beforeSend != undefined && _pageLoadConfigs.beforeSend !== null) {
@@ -398,7 +426,10 @@ var pageLoadClickTheUrl = function (href) {
         }
 
         if (pushState != undefined && pushState) {
-            window.history.pushState({ "data": data, "href": href }, "", href);
+            window.history.pushState({
+                "data": data,
+                "href": href
+            }, "", href);
         }
 
         if ($doc != undefined && $doc.length > 0) {
@@ -417,6 +448,10 @@ var pageLoadClickTheUrl = function (href) {
             $(window).off();
             $(document).off();
             $(document.body).off();
+
+            $.each(_pageLoadEvents, function (event, func) {
+                _pageLoadEvents[event] = [];
+            });
 
             // Document recreate
             for (var i = 1; i < 99999; i++) {
@@ -730,7 +765,11 @@ var pageLoadClickTheUrl = function (href) {
             cache: true,
         });
 
-        return { status: request.status, action: request.statusText, code: request.responseText };
+        return {
+            status: request.status,
+            action: request.statusText,
+            code: request.responseText
+        };
     }
 
     var extFromURL = function (url) {
@@ -774,6 +813,22 @@ var pageLoadClickTheUrl = function (href) {
         });
 
         return attrs;
+    }
+
+    var runEvents = function (eventName) {
+        var array = [];
+
+        if (eventName != undefined && eventName != '' && _pageLoadEvents[eventName] != undefined && _pageLoadEvents[eventName].length > 0) {
+            $.each(_pageLoadEvents[eventName], function (i, func) {
+                var ret = func();
+
+                if (ret != undefined) {
+                    array.push(ret);
+                }
+            });
+        }
+
+        return array;
     }
 
     $.fn.getAllAttrs = function (fnc) {
