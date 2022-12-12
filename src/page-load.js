@@ -210,14 +210,6 @@ var pageLoadEvent = function (eventName, func) {
                     }
 
                     if (href != undefined && href != '' && href != '#' && href.charAt(0) != '#') {
-                        if (_pageLoadConfigs.beforeRun != undefined && _pageLoadConfigs.beforeRun !== null) {
-                            _pageLoadConfigs.beforeRun($(this), href, e);
-                        }
-
-                        if (window.stopPageLoad !== 'undefined' && window.stopPageLoad === true) {
-                            return false;
-                        }
-
                         var parsed_url = '';
                         var hash = href.charAt(0);
 
@@ -246,6 +238,15 @@ var pageLoadEvent = function (eventName, func) {
 
                             if (run) {
                                 var filtered_url = window.location.protocol + '//' + window.location.host + url.pathname + url.search;
+
+                                if (_pageLoadConfigs.beforeRun != undefined && _pageLoadConfigs.beforeRun !== null) {
+                                    _pageLoadConfigs.beforeRun($(this), href, e);
+                                }
+
+                                if (window.stopPageLoad !== 'undefined' && window.stopPageLoad === true) {
+                                    return false;
+                                }
+
                                 pageLoadFromURL(filtered_url);
                                 return false;
                             }
